@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.0.41
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=db_mysql
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=user
+  PostgreSQL:
+    image: postgres:17
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=db_postgres
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=user
