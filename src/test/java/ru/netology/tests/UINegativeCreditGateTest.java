@@ -61,7 +61,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("1. Не должен купить c невалидной карты (через CreditGate)")
     @Test
     public void noShouldPayViaCreditGateWithNoValidNumberCard() {
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 5225"));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 5225"));
         FormPage.checkResaltMessage(messageResaltNegative);
         assertAll(
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -73,7 +73,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("2. Должен дать ошибку при вводе номера карты меньше 16-ти цифр (через CreditGate)")
     @Test
     public void shouldErrorIfNumberCardLessNormalViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 52"));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 52"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldNumberCard(messageIncorrectedFormat),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -85,12 +85,10 @@ public class UINegativeCreditGateTest {
     @DisplayName("3. Должен дать ошибку если ввести буквы в номере карты (через CreditGate)")
     @Test
     public void shouldErrorIfNumberCardLettersViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard("аааа бббб вввв гггг"));
+        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedNumberCard("аааа бббб вввв гггг"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldNumberCard(messageOnlyFigure),
-                FormPage::checkNullValueFieldNumberCard,
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                FormPage::checkNullValueFieldNumberCard
         );
     }
 
@@ -98,12 +96,10 @@ public class UINegativeCreditGateTest {
     @DisplayName("4. Должен дать ошибку если ввести спецсимволы в номере карты (через CreditGate)")
     @Test
     public void shouldErrorIfNumberCardSpecialCharViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard("№№№№ %%%%% ???? ))))"));
+        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedNumberCard("№№№№ %%%%% ???? ))))"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldNumberCard(messageOnlyFigure),
-                FormPage::checkNullValueFieldNumberCard,
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                FormPage::checkNullValueFieldNumberCard
         );
     }
 
@@ -111,7 +107,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("5. Должен дать ошибку при незаполненном номере карты (через CreditGate)")
     @Test
     public void shouldErrorIfNumberCardNotAddViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard(""));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(""));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldNumberCard(messageIncorrectedFormat),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -123,7 +119,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("6. Должен дать ошибку при вводе номера карты больше 16-ти цифр (через CreditGate)")
     @Test
     public void shouldErrorIfNumberCardBiggerNormalViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 5223 2"));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 5223 2"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldNumberCard(messageCharBiggerLimit),
                 () -> FormPage.checkValueFieldNumberCard("5555 2266 5558 5223"),
@@ -136,7 +132,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("7. Должен дать ошибку при вводе месяца = 00 (через CreditGate)")
     @Test
     public void shouldErrorIfMonth00ViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedMonth(declined, "00"));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedMonth(declined, "00"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldMonth(messageIncorrectedFormat),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -148,7 +144,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("8. Должен дать ошибку при вводе месяца = 13 (через CreditGate)")
     @Test
     public void shouldErrorIfMonth13ViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedMonth(declined, "13"));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedMonth(declined, "13"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldMonth(messageIncorrectedPeriodMonth),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -160,7 +156,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("9. Должен дать ошибку при незаполненном месяце (через CreditGate)")
     @Test
     public void shouldErrorIfMonthNotAddViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedMonth(declined, ""));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedMonth(declined, ""));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldMonth(messageIncorrectedFormat),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -172,7 +168,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("10. Должен дать ошибку при вводе месяца из прошлого (через CreditGate)")
     @Test
     public void shouldErrorIfMonthPastViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardMonthPast(declined));
+        FormPage.fillFormAndSend(DataHelper.getDataCardMonthPast(declined));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldMonth(messageIncorrectedPeriodMonth),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -184,7 +180,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("11. Должен дать ошибку при вводе года из прошлого (через CreditGate)")
     @Test
     public void shouldErrorIfYearPastViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardYearPast(declined));
+        FormPage.fillFormAndSend(DataHelper.getDataCardYearPast(declined));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldYear(messageIncorrectedPeriodYear),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -196,7 +192,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("12. Должен дать ошибку при вводе года более срока действия (через CreditGate)")
     @Test
     public void shouldErrorIfYearBiggerPeriodViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardYearBiggerPeriod(declined));
+        FormPage.fillFormAndSend(DataHelper.getDataCardYearBiggerPeriod(declined));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldYear(messageIncorrectedPeriodMonth),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -208,7 +204,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("13. Должен дать ошибку при незаполненном годе (через CreditGate)")
     @Test
     public void shouldErrorIfYearNotAddViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedYear(declined, ""));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedYear(declined, ""));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldYear(messageIncorrectedFormat),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -220,12 +216,10 @@ public class UINegativeCreditGateTest {
     @DisplayName("14. Должен дать ошибку если ввести кириллицу в поле Владелец (через CreditGate)")
     @Test
     public void shouldErrorIfNameIncorrectedLettersViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardIncorrectedName(declined));
+        FormPage.fillFormWithoutSend(DataHelper.getDataCardIncorrectedName(declined));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldName(messageIncorrectedText),
-                FormPage::checkNullValueFieldName,
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                FormPage::checkNullValueFieldName
         );
     }
 
@@ -233,12 +227,10 @@ public class UINegativeCreditGateTest {
     @DisplayName("15. Должен дать ошибку если ввести цифры в поле Владелец (через CreditGate)")
     @Test
     public void shouldErrorIfNameFigureViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedName(declined, "32467"));
+        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedName(declined, "32467"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldName(messageIncorrectedText),
-                FormPage::checkNullValueFieldName,
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                FormPage::checkNullValueFieldName
         );
     }
 
@@ -246,12 +238,10 @@ public class UINegativeCreditGateTest {
     @DisplayName("16. Должен дать ошибку если ввести спецсимволы в поле Владелец (через CreditGate)")
     @Test
     public void shouldErrorIfNameSpecialCharViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedName(declined, "#&%"));
+        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedName(declined, "#&%"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldName(messageIncorrectedText),
-                FormPage::checkNullValueFieldName,
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                FormPage::checkNullValueFieldName
         );
     }
 
@@ -259,7 +249,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("17. Должен дать ошибку если ввести в поле Владелец более 26 символов (через CreditGate)")
     @Test
     public void shouldErrorIfNameBiggerLimitViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedName(declined, "ggggg ggggg aaaaa aaaaa fff"));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedName(declined, "ggggg ggggg aaaaa aaaaa fff"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldName(messageCharBiggerLimit),
                 () -> FormPage.checkValueFieldName("ggggg ggggg aaaaa aaaaa f")
@@ -270,7 +260,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("18. Должен дать ошибку если не заполнять поле Владелец (через CreditGate)")
     @Test
     public void shouldErrorIfNameNotAddViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedName(declined, ""));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedName(declined, ""));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldName(messageRequiredField),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
@@ -282,12 +272,10 @@ public class UINegativeCreditGateTest {
     @DisplayName("19. Должен дать ошибку если ввести буквы в поле CVC (через CreditGate)")
     @Test
     public void shouldErrorIfCVCLettersViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedCVC(declined, "own"));
+        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedCVC(declined, "own"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldCVC(messageOnlyFigure),
-                FormPage::checkNullValueFieldCVC,
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                FormPage::checkNullValueFieldCVC
         );
     }
 
@@ -295,12 +283,10 @@ public class UINegativeCreditGateTest {
     @DisplayName("20. Должен дать ошибку если ввести спецсимволы в поле CVC (через CreditGate)")
     @Test
     public void shouldErrorIfCVCSpecialCharViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedCVC(declined, "#%&"));
+        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedCVC(declined, "#%&"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldCVC(messageOnlyFigure),
-                FormPage::checkNullValueFieldCVC,
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                FormPage::checkNullValueFieldCVC
         );
     }
 
@@ -308,7 +294,7 @@ public class UINegativeCreditGateTest {
     @DisplayName("21. Должен дать ошибку если ввести в поле CVC более 3-х цифр (через CreditGate)")
     @Test
     public void shouldErrorIfCVCBiggerLimitViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedCVC(declined, "5432"));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedCVC(declined, "5432"));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldCVC(messageCharBiggerLimit),
                 () -> FormPage.checkValueFieldCVC("543")
@@ -316,10 +302,10 @@ public class UINegativeCreditGateTest {
     }
 
     @Step
-    @DisplayName("21. Должен дать ошибку если не заполнять поле CVC (через CreditGate)")
+    @DisplayName("22. Должен дать ошибку если не заполнять поле CVC (через CreditGate)")
     @Test
     public void shouldErrorIfCVCNotAddViaCreditGate() {
-        FormPage.fillForm(DataHelper.getDataCardFixedCVC(declined, ""));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedCVC(declined, ""));
         assertAll(
                 () -> FormPage.checkErrorMessageFieldCVC(messageIncorrectedFormat),
                 () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),

@@ -22,13 +22,21 @@ public class FormPage {
     private static final SelenideElement fieldName = $(byText("Владелец")).closest("span").find("input");
     private static final SelenideElement fieldCVC = $("input[placeholder='999']");
 
-    public static void fillForm(DataHelper.DataCard dataCard) {
+    public static void fillFormAndSend(DataHelper.DataCard dataCard) {
         fieldNumberCard.setValue(dataCard.getNumberCard());
         fieldMonth.setValue(dataCard.getMonth());
         fieldYear.setValue(dataCard.getYear());
         fieldName.setValue(dataCard.getName());
         fieldCVC.setValue(dataCard.getCVC());
         $(withText("Продолжить")).closest("button").click();
+    }
+
+    public static void fillFormWithoutSend(DataHelper.DataCard dataCard) {
+        fieldNumberCard.setValue(dataCard.getNumberCard());
+        fieldMonth.setValue(dataCard.getMonth());
+        fieldYear.setValue(dataCard.getYear());
+        fieldName.setValue(dataCard.getName());
+        fieldCVC.setValue(dataCard.getCVC());
     }
 
     public static void checkResaltMessage(String message) {

@@ -51,7 +51,7 @@ public class UIPositiveTest {
     @Test
     public void shouldPayViaPaymentGateWithApproved() {
         HeadPage.loginOnPaymentGate();
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard(approved));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(approved));
         FormPage.checkResaltMessage(messageResaltSuccessful);
         assertAll(
                 () -> assertEquals("APPROVED", SQLHelper.statusPaymentGate(parameterDB)),
@@ -64,7 +64,7 @@ public class UIPositiveTest {
     @Test
     public void shouldPayViaPaymentGateWithDeclined() {
         HeadPage.loginOnPaymentGate();
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard(declined));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(declined));
         FormPage.checkResaltMessage(messageResaltSuccessful);
         assertAll(
                 () -> assertEquals("DECLINED", SQLHelper.statusPaymentGate(parameterDB)),
@@ -77,7 +77,7 @@ public class UIPositiveTest {
     @Test
     public void shouldPayViaCreditGateWithApproved() {
         HeadPage.loginOnCreditGate();
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard(approved));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(approved));
         FormPage.checkResaltMessage(messageResaltSuccessful);
         assertAll(
                 () -> assertEquals("APPROVED", SQLHelper.statusCreditGate(parameterDB)),
@@ -90,7 +90,7 @@ public class UIPositiveTest {
     @Test
     public void shouldPayViaCreditGateWithDeclined() {
         HeadPage.loginOnCreditGate();
-        FormPage.fillForm(DataHelper.getDataCardFixedNumberCard(declined));
+        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(declined));
         FormPage.checkResaltMessage(messageResaltSuccessful);
         assertAll(
                 () -> assertEquals("DECLINED", SQLHelper.statusCreditGate(parameterDB)),
