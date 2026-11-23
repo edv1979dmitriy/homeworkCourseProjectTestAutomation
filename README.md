@@ -1,3 +1,5 @@
+[![Java CI with Gradle](https://github.com/edv1979dmitriy/homeworkCourseProjectTestAutomation/actions/workflows/gradle.yml/badge.svg)](https://github.com/edv1979dmitriy/homeworkCourseProjectTestAutomation/actions/workflows/gradle.yml)
+
 ## Инструкция по подготовке и запуску автотестов проекта (ОС Windows)
 
 ### Подготовка инструментов:
