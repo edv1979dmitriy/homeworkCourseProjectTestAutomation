@@ -41,6 +41,7 @@ public class UINegativeCreditGateTest {
     @BeforeEach
     public void openForm() {
         formPage = headPage.loginOnCreditGate();
+        formPage.checkVisiableFormPageCredit();
     }
 
     @AfterEach

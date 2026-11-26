@@ -41,6 +41,7 @@ public class UINegativePaymentGateTest {
     @BeforeEach
     public void openForm() {
         formPage = headPage.loginOnPaymentGate();
+        formPage.checkVisiableFormPagePayment();
     }
 
     @AfterEach

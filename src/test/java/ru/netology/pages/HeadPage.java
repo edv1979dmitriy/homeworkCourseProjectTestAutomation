@@ -1,7 +1,5 @@
 package ru.netology.pages;
 
-import com.codeborne.selenide.Condition;
-
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 

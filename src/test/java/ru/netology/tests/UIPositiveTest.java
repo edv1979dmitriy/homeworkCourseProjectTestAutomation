@@ -44,6 +44,7 @@ public class UIPositiveTest {
     @Test
     public void shouldPayViaPaymentGateWithApproved() {
         var formPage = headPage.loginOnPaymentGate();
+        formPage.checkVisiableFormPagePayment();
         formPage.fillFormAndSend(DataHelper.getDataCardApproved());
         formPage.checkResultMessage(messageResultSuccessful);
         assertAll(
@@ -57,6 +58,7 @@ public class UIPositiveTest {
     @Test
     public void shouldPayViaPaymentGateWithDeclined() {
         var formPage = headPage.loginOnPaymentGate();
+        formPage.checkVisiableFormPagePayment();
         formPage.fillFormAndSend(DataHelper.getDataCardDeclined());
         formPage.checkResultMessage(messageResultSuccessful);
         assertAll(
@@ -70,6 +72,7 @@ public class UIPositiveTest {
     @Test
     public void shouldPayViaCreditGateWithApproved() {
         var formPage = headPage.loginOnCreditGate();
+        formPage.checkVisiableFormPageCredit();
         formPage.fillFormAndSend(DataHelper.getDataCardApproved());
         formPage.checkResultMessage(messageResultSuccessful);
         assertAll(
@@ -83,6 +86,7 @@ public class UIPositiveTest {
     @Test
     public void shouldPayViaCreditGateWithDeclined() {
         var formPage = headPage.loginOnCreditGate();
+        formPage.checkVisiableFormPageCredit();
         formPage.fillFormAndSend(DataHelper.getDataCardDeclined());
         formPage.checkResultMessage(messageResultSuccessful);
         assertAll(
