@@ -9,13 +9,11 @@ public class HeadPage {
     }
 
     public FormPage loginOnPaymentGate() {
-        $(byText("Купить в кредит")).closest("button").click();
         $(byText("Купить")).closest("button").click();
         return new FormPage();
     }
 
     public FormPage loginOnCreditGate() {
-        $(byText("Купить")).closest("button").click();
         $(byText("Купить в кредит")).closest("button").click();
         return new FormPage();
     }

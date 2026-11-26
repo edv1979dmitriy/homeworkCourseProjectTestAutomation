@@ -19,14 +19,14 @@ public class UIPositiveTest {
     private static HeadPage headPage;
 
     @BeforeAll
-    public static void openService() {
-        Configuration.pageLoadTimeout = 100000;
-        headPage = Selenide.open("http://localhost:8080", HeadPage.class);
-    }
-
-    @BeforeAll
     public static void setUpAllure() {
         SelenideLogger.addListener("allure", new AllureSelenide());
+    }
+
+    @BeforeEach
+    public void openService() {
+        Configuration.pageLoadTimeout = 100000;
+        headPage = Selenide.open("http://localhost:8080", HeadPage.class);
     }
 
     @AfterEach

@@ -24,14 +24,7 @@ public class UINegativePaymentGateTest {
     public static String messageIncorrectedText = "Значение может содержать только латиницу, дефисы и пробелы";
     public static String messageRequiredField = "Поле обязательно для заполнения";
 
-    private static HeadPage headPage;
     private static FormPage formPage;
-
-    @BeforeAll
-    public static void openService() {
-        Configuration.pageLoadTimeout = 100000;
-        headPage = Selenide.open("http://localhost:8080", HeadPage.class);
-    }
 
     @BeforeAll
     public static void setUpAllure() {
@@ -40,6 +33,8 @@ public class UINegativePaymentGateTest {
 
     @BeforeEach
     public void openForm() {
+        Configuration.pageLoadTimeout = 100000;
+        var headPage = Selenide.open("http://localhost:8080", HeadPage.class);
         formPage = headPage.loginOnPaymentGate();
         formPage.checkVisiableFormPagePayment();
     }
