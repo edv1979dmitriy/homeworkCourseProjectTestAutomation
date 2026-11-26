@@ -8,7 +8,6 @@ import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
 import ru.netology.data.DataHelper;
 import ru.netology.data.SQLHelper;
-import ru.netology.pages.FormPage;
 import ru.netology.pages.HeadPage;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,19 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UIPositiveTest {
 
-    public static String approved = "1111 2222 3333 4444";
-    public static String declined = "5555 6666 7777 8888";
-    public static String db = System.getProperty("db.url");
-    public static String user = System.getProperty("db.user");
-    public static String password = System.getProperty("db.pass");
-    public static String messageResaltSuccessful = "Операция одобрена Банком.";
-
-    SQLHelper.ParameterDB parameterDB = new SQLHelper.ParameterDB(db, user, password);
+    private static final String messageResultSuccessful = "Операция одобрена Банком.";
+    private static HeadPage headPage;
 
     @BeforeAll
     public static void openService() {
         Configuration.pageLoadTimeout = 100000;
-        Selenide.open("http://localhost:8080");
+        headPage = Selenide.open("http://localhost:8080", HeadPage.class);
     }
 
     @BeforeAll
@@ -38,7 +31,7 @@ public class UIPositiveTest {
 
     @AfterEach
     public void cleanDB() {
-        SQLHelper.cleanDB(parameterDB);
+        SQLHelper.cleanDB();
     }
 
     @AfterAll
@@ -50,12 +43,12 @@ public class UIPositiveTest {
     @DisplayName("Должен купить через PaymentGate c APPROVED")
     @Test
     public void shouldPayViaPaymentGateWithApproved() {
-        HeadPage.loginOnPaymentGate();
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(approved));
-        FormPage.checkResaltMessage(messageResaltSuccessful);
+        var formPage = headPage.loginOnPaymentGate();
+        formPage.fillFormAndSend(DataHelper.getDataCardApproved());
+        formPage.checkResultMessage(messageResultSuccessful);
         assertAll(
-                () -> assertEquals("APPROVED", SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNotNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> assertEquals("APPROVED", SQLHelper.statusPaymentGate()),
+                () -> assertNotNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -63,12 +56,12 @@ public class UIPositiveTest {
     @DisplayName("Должен купить через PaymentGate c DECLINED")
     @Test
     public void shouldPayViaPaymentGateWithDeclined() {
-        HeadPage.loginOnPaymentGate();
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(declined));
-        FormPage.checkResaltMessage(messageResaltSuccessful);
+        var formPage = headPage.loginOnPaymentGate();
+        formPage.fillFormAndSend(DataHelper.getDataCardDeclined());
+        formPage.checkResultMessage(messageResultSuccessful);
         assertAll(
-                () -> assertEquals("DECLINED", SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNotNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> assertEquals("DECLINED", SQLHelper.statusPaymentGate()),
+                () -> assertNotNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -76,12 +69,12 @@ public class UIPositiveTest {
     @DisplayName("Должен купить через CreditGate c APPROVED")
     @Test
     public void shouldPayViaCreditGateWithApproved() {
-        HeadPage.loginOnCreditGate();
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(approved));
-        FormPage.checkResaltMessage(messageResaltSuccessful);
+        var formPage = headPage.loginOnCreditGate();
+        formPage.fillFormAndSend(DataHelper.getDataCardApproved());
+        formPage.checkResultMessage(messageResultSuccessful);
         assertAll(
-                () -> assertEquals("APPROVED", SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNotNull(SQLHelper.orderCreditGate(parameterDB))
+                () -> assertEquals("APPROVED", SQLHelper.statusCreditGate()),
+                () -> assertNotNull(SQLHelper.orderCreditGate())
         );
     }
 
@@ -89,12 +82,12 @@ public class UIPositiveTest {
     @DisplayName("Должен купить через CreditGate c DECLINED")
     @Test
     public void shouldPayViaCreditGateWithDeclined() {
-        HeadPage.loginOnCreditGate();
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(declined));
-        FormPage.checkResaltMessage(messageResaltSuccessful);
+        var formPage = headPage.loginOnCreditGate();
+        formPage.fillFormAndSend(DataHelper.getDataCardDeclined());
+        formPage.checkResultMessage(messageResultSuccessful);
         assertAll(
-                () -> assertEquals("DECLINED", SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNotNull(SQLHelper.orderCreditGate(parameterDB))
+                () -> assertEquals("DECLINED", SQLHelper.statusCreditGate()),
+                () -> assertNotNull(SQLHelper.orderCreditGate())
         );
     }
 }

@@ -14,57 +14,54 @@ public class SQLHelper {
     private SQLHelper() {
     }
 
+    private static final String db = System.getProperty("db.url");
+    private static final String user = System.getProperty("db.user");
+    private static final String password = System.getProperty("db.pass");
+
     private static final QueryRunner runner = new QueryRunner();
 
-    private static Connection connect(ParameterDB parameterDB) throws SQLException {
-        return DriverManager.getConnection(parameterDB.getDb(), parameterDB.getUser(), parameterDB.getPassword());
+    private static Connection connect() throws SQLException {
+        return DriverManager.getConnection(db, user, password);
     }
 
     @SneakyThrows
-    public static String statusCreditGate(ParameterDB parameterDB) {
+    public static String statusCreditGate() {
         var codeSQL = "SELECT status FROM credit_request_entity ORDER BY created DESC LIMIT 1";
-        try (var conn = connect(parameterDB)) {
+        try (var conn = connect()) {
             return runner.query(conn, codeSQL, new ScalarHandler<>());
         }
     }
 
     @SneakyThrows
-    public static String statusPaymentGate(ParameterDB parameterDB) {
+    public static String statusPaymentGate() {
         var codeSQL = "SELECT status FROM payment_entity ORDER BY created DESC LIMIT 1";
-        try (var conn = connect(parameterDB)) {
+        try (var conn = connect()) {
             return runner.query(conn, codeSQL, new ScalarHandler<>());
         }
     }
 
     @SneakyThrows
-    public static String orderPaymentGate(ParameterDB parameterDB) {
+    public static String orderPaymentGate() {
         var codeSQL = "SELECT payment_id FROM order_entity ORDER BY created DESC LIMIT 1";
-        try (var conn = connect(parameterDB)) {
+        try (var conn = connect()) {
             return runner.query(conn, codeSQL, new ScalarHandler<>());
         }
     }
 
     @SneakyThrows
-    public static String orderCreditGate(ParameterDB parameterDB) {
+    public static String orderCreditGate() {
         var codeSQL = "SELECT credit_id FROM order_entity ORDER BY created DESC LIMIT 1";
-        try (var conn = connect(parameterDB)) {
+        try (var conn = connect()) {
             return runner.query(conn, codeSQL, new ScalarHandler<>());
         }
     }
 
     @SneakyThrows
-    public static void cleanDB(ParameterDB parameterDB) {
-        try (var conn = connect(parameterDB)) {
+    public static void cleanDB() {
+        try (var conn = connect()) {
             runner.update(conn, "DELETE FROM order_entity");
             runner.update(conn, "DELETE FROM credit_request_entity");
             runner.update(conn, "DELETE FROM payment_entity");
         }
-    }
-
-    @Value
-    public static class ParameterDB {
-        String db;
-        String user;
-        String password;
     }
 }

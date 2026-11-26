@@ -14,6 +14,9 @@ public class DataHelper {
     private DataHelper() {
     }
 
+    private static final String approved = "1111 2222 3333 4444";
+    private static final String declined = "5555 6666 7777 8888";
+
     private static final LocalDate dateCurrent = LocalDate.now(ZoneId.of("Europe/Moscow"));
 
     private static LocalDate getDateFuture() {
@@ -66,40 +69,85 @@ public class DataHelper {
         return new DataCard(numberCard, getMonth(), getYear(), getName(), getCVC());
     }
 
-    public static DataCard getDataCardFixedMonth(String numberCard, String month) {
-        return new DataCard(numberCard, month, getYear(), getName(), getCVC());
+    public static DataCard getDataCardApproved() {
+        return new DataCard(approved, getMonth(), getYear(), getName(), getCVC());
     }
 
-    public static DataCard getDataCardMonthPast(String numberCard) {
-        return new DataCard(numberCard, getMonthPast(), getYearCurrent(), getName(), getCVC());
+    public static DataCard getDataCardDeclined() {
+        return new DataCard(declined, getMonth(), getYear(), getName(), getCVC());
     }
 
-    public static DataCard getDataCardFixedYear(String numberCard, String year) {
-        return new DataCard(numberCard, getMonth(), year, getName(), getCVC());
+    public static DataCard getDataCardApprovedFixedMonth(String month) {
+        return new DataCard(approved, month, getYear(), getName(), getCVC());
     }
 
-    public static DataCard getDataCardYearBiggerPeriod(String numberCard) {
-        return new DataCard(numberCard, getMonth(), getYearBiggerPeriod(), getName(), getCVC());
+    public static DataCard getDataCardDeclinedFixedMonth(String month) {
+        return new DataCard(declined, month, getYear(), getName(), getCVC());
     }
 
-    public static DataCard getDataCardYearPast(String numberCard) {
-        return new DataCard(numberCard, getMonth(), getYearPast(), getName(), getCVC());
+    public static DataCard getDataCardApprovedMonthPast() {
+        return new DataCard(approved, getMonthPast(), getYearCurrent(), getName(), getCVC());
     }
 
-    public static DataCard getDataCardFixedName(String numberCard, String name) {
-        return new DataCard(numberCard, getMonth(), getYear(), name, getCVC());
+    public static DataCard getDataCardDeclinedMonthPast() {
+        return new DataCard(declined, getMonthPast(), getYearCurrent(), getName(), getCVC());
     }
 
-    public static DataCard getDataCardIncorrectedName(String numberCard) {
-        return new DataCard(numberCard, getMonth(), getYear(), getNameIncorrected(), getCVC());
+    public static DataCard getDataCardApprovedFixedYear(String year) {
+        return new DataCard(approved, getMonth(), year, getName(), getCVC());
     }
 
-    public static DataCard getDataCardFixedCVC(String numberCard, String cvc) {
-        return new DataCard(numberCard, getMonth(), getYear(), getName(), cvc);
+    public static DataCard getDataCardDeclinedFixedYear(String year) {
+        return new DataCard(declined, getMonth(), year, getName(), getCVC());
     }
 
-    public static DataCard getDataCardFixedParameter(String numberCard, String month, String year, String name, String cvc) {
-        return new DataCard(numberCard, month, year, name, cvc);
+    public static DataCard getDataCardApprovedYearBiggerPeriod() {
+        return new DataCard(approved, getMonth(), getYearBiggerPeriod(), getName(), getCVC());
+    }
+
+    public static DataCard getDataCardDeclinedYearBiggerPeriod() {
+        return new DataCard(declined, getMonth(), getYearBiggerPeriod(), getName(), getCVC());
+    }
+
+    public static DataCard getDataCardApprovedYearPast() {
+        return new DataCard(approved, getMonth(), getYearPast(), getName(), getCVC());
+    }
+
+    public static DataCard getDataCardDeclinedYearPast() {
+        return new DataCard(declined, getMonth(), getYearPast(), getName(), getCVC());
+    }
+
+    public static DataCard getDataCardApprovedFixedName(String name) {
+        return new DataCard(approved, getMonth(), getYear(), name, getCVC());
+    }
+
+    public static DataCard getDataCardDeclinedFixedName(String name) {
+        return new DataCard(declined, getMonth(), getYear(), name, getCVC());
+    }
+
+
+    public static DataCard getDataCardApprovedIncorrectedName() {
+        return new DataCard(approved, getMonth(), getYear(), getNameIncorrected(), getCVC());
+    }
+
+    public static DataCard getDataCardDeclinedIncorrectedName() {
+        return new DataCard(declined, getMonth(), getYear(), getNameIncorrected(), getCVC());
+    }
+
+    public static DataCard getDataCardApprovedFixedCVC(String cvc) {
+        return new DataCard(approved, getMonth(), getYear(), getName(), cvc);
+    }
+
+    public static DataCard getDataCardDeclinedFixedCVC(String cvc) {
+        return new DataCard(declined, getMonth(), getYear(), getName(), cvc);
+    }
+
+    public static DataCard getDataCardApprovedFixedParameter(String month, String year, String name, String cvc) {
+        return new DataCard(approved, month, year, name, cvc);
+    }
+
+    public static DataCard getDataCardDeclinedFixedParameter(String month, String year, String name, String cvc) {
+        return new DataCard(declined, month, year, name, cvc);
     }
 
     @Value

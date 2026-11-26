@@ -15,11 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UINegativePaymentGateTest {
 
-    public static String approved = "1111 2222 3333 4444";
-    public static String db = System.getProperty("db.url");
-    public static String user = System.getProperty("db.user");
-    public static String password = System.getProperty("db.pass");
-    public static String messageResaltNegative = "Ошибка! Банк отказал в проведении операции.";
+    public static String messageResultNegative = "Ошибка! Банк отказал в проведении операции.";
     public static String messageIncorrectedFormat = "Неверный формат";
     public static String messageOnlyFigure = "Значение может содержать только цифры";
     public static String messageCharBiggerLimit = "Количество символов превышает допустимое";
@@ -28,12 +24,13 @@ public class UINegativePaymentGateTest {
     public static String messageIncorrectedText = "Значение может содержать только латиницу, дефисы и пробелы";
     public static String messageRequiredField = "Поле обязательно для заполнения";
 
-    SQLHelper.ParameterDB parameterDB = new SQLHelper.ParameterDB(db, user, password);
+    private static HeadPage headPage;
+    private static FormPage formPage;
 
     @BeforeAll
     public static void openService() {
         Configuration.pageLoadTimeout = 100000;
-        Selenide.open("http://localhost:8080");
+        headPage = Selenide.open("http://localhost:8080", HeadPage.class);
     }
 
     @BeforeAll
@@ -43,12 +40,12 @@ public class UINegativePaymentGateTest {
 
     @BeforeEach
     public void openForm() {
-        HeadPage.loginOnPaymentGate();
+        formPage = headPage.loginOnPaymentGate();
     }
 
     @AfterEach
     public void cleanDB() {
-        SQLHelper.cleanDB(parameterDB);
+        SQLHelper.cleanDB();
     }
 
     @AfterAll
@@ -60,11 +57,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("1. Не должен купить c невалидной карты (через PaymentGate)")
     @Test
     public void noShouldPayViaPaymentGateWithNoValidNumberCard() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 5225"));
-        FormPage.checkResaltMessage(messageResaltNegative);
+        formPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 5225"));
+        formPage.checkResultMessage(messageResultNegative);
         assertAll(
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -72,11 +69,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("2. Должен дать ошибку при вводе номера карты меньше 16-ти цифр (через PaymentGate)")
     @Test
     public void shouldErrorIfNumberCardLessNormalViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 52"));
+        formPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 52"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldNumberCard(messageIncorrectedFormat),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldNumberCard(messageIncorrectedFormat),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -84,10 +81,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("3. Должен дать ошибку если ввести буквы в номере карты (через PaymentGate)")
     @Test
     public void shouldErrorIfNumberCardLettersViaPaymentGate() {
-        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedNumberCard("аааа бббб вввв гггг"));
+        formPage.fillFormWithoutSend(DataHelper.getDataCardFixedNumberCard("аааа бббб вввв гггг"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldNumberCard(messageOnlyFigure),
-                FormPage::checkNullValueFieldNumberCard
+                () -> formPage.checkErrorMessageFieldNumberCard(messageOnlyFigure),
+                () -> formPage.checkNullValueFieldNumberCard()
         );
     }
 
@@ -95,10 +92,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("4. Должен дать ошибку если ввести спецсимволы в номере карты (через PaymentGate)")
     @Test
     public void shouldErrorIfNumberCardSpecialCharViaPaymentGate() {
-        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedNumberCard("№№№№ %%%%% ???? ))))"));
+        formPage.fillFormWithoutSend(DataHelper.getDataCardFixedNumberCard("№№№№ %%%%% ???? ))))"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldNumberCard(messageOnlyFigure),
-                FormPage::checkNullValueFieldNumberCard
+                () -> formPage.checkErrorMessageFieldNumberCard(messageOnlyFigure),
+                () -> formPage.checkNullValueFieldNumberCard()
         );
     }
 
@@ -106,11 +103,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("5. Должен дать ошибку при незаполненном номере карты (через PaymentGate)")
     @Test
     public void shouldErrorIfNumberCardNotAddViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(""));
+        formPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard(""));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldNumberCard(messageIncorrectedFormat),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldNumberCard(messageIncorrectedFormat),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -118,12 +115,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("6. Должен дать ошибку при вводе номера карты больше 16-ти цифр (через PaymentGate)")
     @Test
     public void shouldErrorIfNumberCardBiggerNormalViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 5223 2"));
+        formPage.fillFormWithoutSend(DataHelper.getDataCardFixedNumberCard("5555 2266 5558 5223 2"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldNumberCard(messageCharBiggerLimit),
-                () -> FormPage.checkValueFieldNumberCard("5555 2266 5558 5223"),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldNumberCard(messageCharBiggerLimit),
+                () -> formPage.checkValueFieldNumberCard("5555 2266 5558 5223")
         );
     }
 
@@ -131,11 +126,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("7. Должен дать ошибку при вводе месяца = 00 (через PaymentGate)")
     @Test
     public void shouldErrorIfMonth00ViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedMonth(approved, "00"));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedFixedMonth("00"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldMonth(messageIncorrectedFormat),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldMonth(messageIncorrectedFormat),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -143,11 +138,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("8. Должен дать ошибку при вводе месяца = 13 (через PaymentGate)")
     @Test
     public void shouldErrorIfMonth13ViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedMonth(approved, "13"));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedFixedMonth("13"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldMonth(messageIncorrectedPeriodMonth),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldMonth(messageIncorrectedPeriodMonth),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -155,11 +150,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("9. Должен дать ошибку при незаполненном месяце (через PaymentGate)")
     @Test
     public void shouldErrorIfMonthNotAddViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedMonth(approved, ""));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedFixedMonth(""));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldMonth(messageIncorrectedFormat),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldMonth(messageIncorrectedFormat),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -167,11 +162,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("10. Должен дать ошибку при вводе месяца из прошлого (через PaymentGate)")
     @Test
     public void shouldErrorIfMonthPastViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardMonthPast(approved));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedMonthPast());
         assertAll(
-                () -> FormPage.checkErrorMessageFieldMonth(messageIncorrectedPeriodMonth),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldMonth(messageIncorrectedPeriodMonth),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -179,11 +174,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("11. Должен дать ошибку при вводе года из прошлого (через PaymentGate)")
     @Test
     public void shouldErrorIfYearPastViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardYearPast(approved));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedYearPast());
         assertAll(
-                () -> FormPage.checkErrorMessageFieldYear(messageIncorrectedPeriodYear),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldYear(messageIncorrectedPeriodYear),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -191,11 +186,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("12. Должен дать ошибку при вводе года более срока действия (через PaymentGate)")
     @Test
     public void shouldErrorIfYearBiggerPeriodViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardYearBiggerPeriod(approved));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedYearBiggerPeriod());
         assertAll(
-                () -> FormPage.checkErrorMessageFieldYear(messageIncorrectedPeriodMonth),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldYear(messageIncorrectedPeriodMonth),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -203,11 +198,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("13. Должен дать ошибку при незаполненном годе (через PaymentGate)")
     @Test
     public void shouldErrorIfYearNotAddViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedYear(approved, ""));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedFixedYear(""));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldYear(messageIncorrectedFormat),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldYear(messageIncorrectedFormat),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -215,10 +210,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("14. Должен дать ошибку если ввести кириллицу в поле Владелец (через PaymentGate)")
     @Test
     public void shouldErrorIfNameIncorrectedLettersViaPaymentGate() {
-        FormPage.fillFormWithoutSend(DataHelper.getDataCardIncorrectedName(approved));
+        formPage.fillFormWithoutSend(DataHelper.getDataCardApprovedIncorrectedName());
         assertAll(
-                () -> FormPage.checkErrorMessageFieldName(messageIncorrectedText),
-                FormPage::checkNullValueFieldName
+                () -> formPage.checkErrorMessageFieldName(messageIncorrectedText),
+                () -> formPage.checkNullValueFieldName()
         );
     }
 
@@ -226,10 +221,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("15. Должен дать ошибку если ввести цифры в поле Владелец (через PaymentGate)")
     @Test
     public void shouldErrorIfNameFigureViaPaymentGate() {
-        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedName(approved, "32467"));
+        formPage.fillFormWithoutSend(DataHelper.getDataCardApprovedFixedName("32467"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldName(messageIncorrectedText),
-                FormPage::checkNullValueFieldName
+                () -> formPage.checkErrorMessageFieldName(messageIncorrectedText),
+                () -> formPage.checkNullValueFieldName()
         );
     }
 
@@ -237,10 +232,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("16. Должен дать ошибку если ввести спецсимволы в поле Владелец (через PaymentGate)")
     @Test
     public void shouldErrorIfNameSpecialCharViaPaymentGate() {
-        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedName(approved, "#&%"));
+        formPage.fillFormWithoutSend(DataHelper.getDataCardApprovedFixedName("#&%"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldName(messageIncorrectedText),
-                FormPage::checkNullValueFieldName
+                () -> formPage.checkErrorMessageFieldName(messageIncorrectedText),
+                () -> formPage.checkNullValueFieldName()
         );
     }
 
@@ -248,10 +243,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("17. Должен дать ошибку если ввести в поле Владелец более 26 символов (через PaymentGate)")
     @Test
     public void shouldErrorIfNameBiggerLimitViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedName(approved, "ggggg ggggg aaaaa aaaaa fff"));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedFixedName("ggggg ggggg aaaaa aaaaa fff"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldName(messageCharBiggerLimit),
-                () -> FormPage.checkValueFieldName("ggggg ggggg aaaaa aaaaa f")
+                () -> formPage.checkErrorMessageFieldName(messageCharBiggerLimit),
+                () -> formPage.checkValueFieldName("ggggg ggggg aaaaa aaaaa f")
         );
     }
 
@@ -259,11 +254,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("18. Должен дать ошибку если не заполнять поле Владелец (через PaymentGate)")
     @Test
     public void shouldErrorIfNameNotAddViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedName(approved, ""));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedFixedName(""));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldName(messageRequiredField),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldName(messageRequiredField),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -271,10 +266,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("19. Должен дать ошибку если ввести буквы в поле CVC (через PaymentGate)")
     @Test
     public void shouldErrorIfCVCLettersViaPaymentGate() {
-        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedCVC(approved, "own"));
+        formPage.fillFormWithoutSend(DataHelper.getDataCardApprovedFixedCVC("own"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldCVC(messageOnlyFigure),
-                FormPage::checkNullValueFieldCVC
+                () -> formPage.checkErrorMessageFieldCVC(messageOnlyFigure),
+                () -> formPage.checkNullValueFieldCVC()
         );
     }
 
@@ -282,10 +277,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("20. Должен дать ошибку если ввести спецсимволы в поле CVC (через PaymentGate)")
     @Test
     public void shouldErrorIfCVCSpecialCharViaPaymentGate() {
-        FormPage.fillFormWithoutSend(DataHelper.getDataCardFixedCVC(approved, "#%&"));
+        formPage.fillFormWithoutSend(DataHelper.getDataCardApprovedFixedCVC("#%&"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldCVC(messageOnlyFigure),
-                FormPage::checkNullValueFieldCVC
+                () -> formPage.checkErrorMessageFieldCVC(messageOnlyFigure),
+                () -> formPage.checkNullValueFieldCVC()
         );
     }
 
@@ -293,10 +288,10 @@ public class UINegativePaymentGateTest {
     @DisplayName("21. Должен дать ошибку если ввести в поле CVC более 3-х цифр (через PaymentGate)")
     @Test
     public void shouldErrorIfCVCBiggerLimitViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedCVC(approved, "5432"));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedFixedCVC("5432"));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldCVC(messageCharBiggerLimit),
-                () -> FormPage.checkValueFieldCVC("543")
+                () -> formPage.checkErrorMessageFieldCVC(messageCharBiggerLimit),
+                () -> formPage.checkValueFieldCVC("543")
         );
     }
 
@@ -304,11 +299,11 @@ public class UINegativePaymentGateTest {
     @DisplayName("22. Должен дать ошибку если не заполнять поле CVC (через PaymentGate)")
     @Test
     public void shouldErrorIfCVCNotAddViaPaymentGate() {
-        FormPage.fillFormAndSend(DataHelper.getDataCardFixedCVC(approved, ""));
+        formPage.fillFormAndSend(DataHelper.getDataCardApprovedFixedCVC(""));
         assertAll(
-                () -> FormPage.checkErrorMessageFieldCVC(messageIncorrectedFormat),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> formPage.checkErrorMessageFieldCVC(messageIncorrectedFormat),
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 }

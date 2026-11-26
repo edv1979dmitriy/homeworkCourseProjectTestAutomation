@@ -13,14 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class APITest {
 
-    public static String approved = "1111 2222 3333 4444";
-    public static String declined = "5555 6666 7777 8888";
-    public static String db = System.getProperty("db.url");
-    public static String user = System.getProperty("db.user");
-    public static String password = System.getProperty("db.pass");
-
-    SQLHelper.ParameterDB parameterDB = new SQLHelper.ParameterDB(db, user, password);
-
     @BeforeAll
     public static void setUpAllure() {
         SelenideLogger.addListener("allure", new AllureSelenide());
@@ -33,20 +25,20 @@ public class APITest {
 
     @AfterEach
     public void cleanDB() {
-        SQLHelper.cleanDB(parameterDB);
+        SQLHelper.cleanDB();
     }
 
     @Step
     @DisplayName("Должен купить через PaymentGate c APPROVED")
     @Test
     public void shouldPayViaPaymentGateWithApproved() {
-        var response = Requests.requestPaymentGate(DataHelper.getDataCardFixedNumberCard(approved));
+        var response = Requests.requestPaymentGate(DataHelper.getDataCardApproved());
         String actual = Requests.getValueFieldResponse(response, "status");
         assertAll(
                 () -> assertEquals(200, response.getStatusCode()),
                 () -> assertEquals("APPROVED", actual),
-                () -> assertEquals("APPROVED", SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNotNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> assertEquals("APPROVED", SQLHelper.statusPaymentGate()),
+                () -> assertNotNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -54,13 +46,13 @@ public class APITest {
     @DisplayName("Должен купить через PaymentGate c DECLINED")
     @Test
     public void shouldPayViaPaymentGateWithDeclined() {
-        var response = Requests.requestPaymentGate(DataHelper.getDataCardFixedNumberCard(declined));
+        var response = Requests.requestPaymentGate(DataHelper.getDataCardDeclined());
         String actual = Requests.getValueFieldResponse(response, "status");
         assertAll(
                 () -> assertEquals(200, response.getStatusCode()),
                 () -> assertEquals("DECLINED", actual),
-                () -> assertEquals("DECLINED", SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNotNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> assertEquals("DECLINED", SQLHelper.statusPaymentGate()),
+                () -> assertNotNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -68,13 +60,13 @@ public class APITest {
     @DisplayName("Должен купить через CreditGate c APPROVED")
     @Test
     public void shouldPayViaCreditGateWithApproved() {
-        var response = Requests.requestCreditGate(DataHelper.getDataCardFixedNumberCard(approved));
+        var response = Requests.requestCreditGate(DataHelper.getDataCardApproved());
         String actual = Requests.getValueFieldResponse(response, "status");
         assertAll(
                 () -> assertEquals(200, response.getStatusCode()),
                 () -> assertEquals("APPROVED", actual),
-                () -> assertEquals("APPROVED", SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNotNull(SQLHelper.orderCreditGate(parameterDB))
+                () -> assertEquals("APPROVED", SQLHelper.statusCreditGate()),
+                () -> assertNotNull(SQLHelper.orderCreditGate())
         );
     }
 
@@ -82,13 +74,13 @@ public class APITest {
     @DisplayName("Должен купить через CreditGate c DECLINED")
     @Test
     public void shouldPayViaCreditGateWithDeclined() {
-        var response = Requests.requestCreditGate(DataHelper.getDataCardFixedNumberCard(declined));
+        var response = Requests.requestCreditGate(DataHelper.getDataCardDeclined());
         String actual = Requests.getValueFieldResponse(response, "status");
         assertAll(
                 () -> assertEquals(200, response.getStatusCode()),
                 () -> assertEquals("DECLINED", actual),
-                () -> assertEquals("DECLINED", SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNotNull(SQLHelper.orderCreditGate(parameterDB))
+                () -> assertEquals("DECLINED", SQLHelper.statusCreditGate()),
+                () -> assertNotNull(SQLHelper.orderCreditGate())
         );
     }
 
@@ -101,8 +93,8 @@ public class APITest {
         assertAll(
                 () -> assertEquals(500, response.getStatusCode()),
                 () -> assertEquals("400 Bad Request", actual),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -115,8 +107,8 @@ public class APITest {
         assertAll(
                 () -> assertEquals(500, response.getStatusCode()),
                 () -> assertEquals("400 Bad Request", actual),
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                () -> assertNull(SQLHelper.statusCreditGate()),
+                () -> assertNull(SQLHelper.orderCreditGate())
         );
     }
 
@@ -124,13 +116,13 @@ public class APITest {
     @DisplayName("Не должен купить c валидной карты без других данных (через PaymentGate)")
     @Test
     public void noShouldPayViaPaymentGateWithNoValidParameters() {
-        var response = Requests.requestPaymentGate(DataHelper.getDataCardFixedParameter(approved, "", "", "", ""));
+        var response = Requests.requestPaymentGate(DataHelper.getDataCardApprovedFixedParameter("", "", "", ""));
         String actual = Requests.getValueFieldResponse(response, "message");
         assertAll(
                 () -> assertEquals(500, response.getStatusCode()),
                 () -> assertEquals("400 Bad Request", actual),
-                () -> assertNull(SQLHelper.statusPaymentGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderPaymentGate(parameterDB))
+                () -> assertNull(SQLHelper.statusPaymentGate()),
+                () -> assertNull(SQLHelper.orderPaymentGate())
         );
     }
 
@@ -138,13 +130,13 @@ public class APITest {
     @DisplayName("Не должен купить c валидной карты без других данных (через CreditGate)")
     @Test
     public void noShouldPayViaCreditGateWithNoValidParameters() {
-        var response = Requests.requestCreditGate(DataHelper.getDataCardFixedParameter(declined, "", "", "", ""));
+        var response = Requests.requestCreditGate(DataHelper.getDataCardDeclinedFixedParameter("", "", "", ""));
         String actual = Requests.getValueFieldResponse(response, "message");
         assertAll(
                 () -> assertEquals(500, response.getStatusCode()),
                 () -> assertEquals("400 Bad Request", actual),
-                () -> assertNull(SQLHelper.statusCreditGate(parameterDB)),
-                () -> assertNull(SQLHelper.orderCreditGate(parameterDB))
+                () -> assertNull(SQLHelper.statusCreditGate()),
+                () -> assertNull(SQLHelper.orderCreditGate())
         );
     }
 }

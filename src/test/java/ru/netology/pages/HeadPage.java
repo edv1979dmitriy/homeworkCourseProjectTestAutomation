@@ -7,18 +7,18 @@ import static com.codeborne.selenide.Selenide.$;
 
 public class HeadPage {
 
-    private HeadPage() {
+    public HeadPage() {
     }
 
-    public static void loginOnPaymentGate() {
+    public FormPage loginOnPaymentGate() {
         $(byText("Купить в кредит")).closest("button").click();
         $(byText("Купить")).closest("button").click();
-        $("h3[class='heading heading_size_m heading_theme_alfa-on-white']").shouldHave(Condition.text("Оплата по карте"));
+        return new FormPage();
     }
 
-    public static void loginOnCreditGate() {
+    public FormPage loginOnCreditGate() {
         $(byText("Купить")).closest("button").click();
         $(byText("Купить в кредит")).closest("button").click();
-        $("h3[class='heading heading_size_m heading_theme_alfa-on-white']").shouldHave(Condition.text("Кредит по данным карты"));
+        return new FormPage();
     }
 }
